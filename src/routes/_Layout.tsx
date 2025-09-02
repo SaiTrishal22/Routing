@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import NavBarLayoutComponent from "@/components/NavBar";
-import SideBarLayoutComponent from "@/components/SideBar";
+
 
 export const Route = createFileRoute("/_Layout")({
   component: RouteComponent,
@@ -17,9 +17,9 @@ function RouteComponent() {
       {/* Body: sidebar + main content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <aside className="hidden md:flex w-64 flex-col border-r bg-sidebar p-4">
+        {/* <aside className="hidden md:flex w-64 flex-col border-r bg-sidebar p-4">
           <SideBarLayoutComponent />
-        </aside>
+        </aside> */}
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-6 bg-background">

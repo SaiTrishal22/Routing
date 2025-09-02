@@ -39,8 +39,6 @@ function UserLogin() {
       (user: any) =>
         user.username === username && password === user.password
     );
-
-
     try {
       if (getUserData) {
         setUser(getUserData);

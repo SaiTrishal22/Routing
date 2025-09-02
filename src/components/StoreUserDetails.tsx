@@ -2,6 +2,24 @@ import { useContext, createContext, useState, ReactNode } from "react";
 
 
 type User = {
+  lastName: any;
+  email: ReactNode;
+  company: any;
+  username: ReactNode;
+  phone: ReactNode;
+  age: ReactNode;
+  gender: ReactNode;
+  birthDate: ReactNode;
+  bloodGroup: ReactNode;
+  eyeColor: ReactNode;
+  hair: any;
+  address: any;
+  bank: any;
+  crypto: any;
+  ip: ReactNode;
+  macAddress: ReactNode;
+  userAgent: ReactNode;
+  firstName: any;
   id: string;
   image?: string;
 };

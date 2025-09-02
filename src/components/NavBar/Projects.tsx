@@ -27,6 +27,8 @@ import {
   SelectGroup,
 } from "../ui/select";
 import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { useUser } from "../StoreUserDetails";
 
 
 type CaseStageDetail = {
@@ -61,10 +63,9 @@ type CaseRecord = {
 function Projects() {
   const router = useRouter();
   const navigate = useNavigate();
-
-
+  const { user } = useUser();
   const searchParams = new URLSearchParams(router.history.location.search);
-
+  const userId = user?.id ?? "";
   const initialPageIndex = parseInt(searchParams.get('page') || '1') - 1;
   const initialPageSize = parseInt(searchParams.get('size') || '15');
   const initialSearch = searchParams.get('search') || '';
@@ -224,6 +225,7 @@ function Projects() {
         />
       </div>
 
+       
       <div className="flex flex-col border border-gray-200 rounded-md shadow-sm h-[635px]">
         {/* Header stays visible */}
         <div>

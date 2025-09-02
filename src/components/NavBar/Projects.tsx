@@ -62,8 +62,9 @@ function Projects() {
   const router = useRouter();
   const navigate = useNavigate();
 
-  // Get initial values from URL on component mount
+
   const searchParams = new URLSearchParams(router.history.location.search);
+
   const initialPageIndex = parseInt(searchParams.get('page') || '1') - 1;
   const initialPageSize = parseInt(searchParams.get('size') || '15');
   const initialSearch = searchParams.get('search') || '';
@@ -98,7 +99,6 @@ function Projects() {
       };
       const res = await fetchCasesData({ ...queryParams });
 
-      // Navigate with search parameters
       navigate({
         to: "/projects",
         search: {
@@ -192,14 +192,17 @@ function Projects() {
   if (isError) {
     return <div>Error fetching data. Please try again later.</div>;
   }
+   
+  
 
   const handlePageSizeChange = (value: string) => {
+    table.setPageIndex(0);
     table.setPageSize(Number(value));
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchName(e.target.value);
-    // When search changes, reset to the first page
+
     table.setPageIndex(0);
   };
 
@@ -246,35 +249,42 @@ function Projects() {
             </thead>
           </table>
         </div>
-
-        {/* Scrollable body (fills all remaining space) */}
-        <div className="flex-1 overflow-y-auto">
+    
+         <div className="flex-1 overflow-y-auto">
           <table className="min-w-full text-sm">
-            <tbody className="divide-y divide-gray-200">
-              {table.getRowModel().rows.map((row, rowIdx) => (
-                <tr
-                  key={row.id}
-                  className={`${
-                    rowIdx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  } hover:bg-gray-100 transition-colors`}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
-                      className="px-4 py-2 whitespace-nowrap text-gray-800"
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+  <tbody className="divide-y divide-gray-200">
+    {casesData.length > 0 ? (
+      table.getRowModel().rows.map((row, rowIdx) => (
+        <tr
+          key={row.id}
+          className={`${
+            rowIdx % 2 === 0 ? "bg-white" : "bg-gray-50"
+          } hover:bg-gray-100 transition-colors`}
+        >
+          {row.getVisibleCells().map((cell) => (
+            <td
+              key={cell.id}
+              className="px-4 py-2 whitespace-nowrap text-gray-800"
+            >
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </td>
+          ))}
+        </tr>
+      ))
+    ) : (
+      <tr>
+        <td colSpan={columns.length} className="text-center py-8 text-gray-500">
+          There is no data for "{debouncedSearch}"
+        </td>
+      </tr>
+    )}
+  </tbody>
+</table>
         </div>
-
-        {/* Footer pagination (fixed, does not scroll) */}
+      
+  
         <div className="border-t border-gray-300 px-4 py-3 flex justify-between items-center">
-          {/* left: select + record count */}
+
           <div className="flex items-center gap-4">
             <Select value={String(pagination.pageSize)} onValueChange={handlePageSizeChange}>
               <SelectTrigger className="w-28">
@@ -315,97 +325,95 @@ function Projects() {
             />
           </div>
 
-<Pagination>
-  <PaginationContent className="flex items-center justify-center gap-2">
-    {/* Previous Button */}
-    <PaginationItem>
-      {table.getCanPreviousPage() ? (
-        <PaginationPrevious
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            table.previousPage();
-          }}
-          className="px-3 py-1 rounded-md border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 text-sm transition-colors"
-        />
-      ) : (
-        <span className="px-3 py-1 rounded-md border border-gray-200 bg-gray-100 text-gray-400 text-sm cursor-not-allowed">
-          Previous
-        </span>
-      )}
-    </PaginationItem>
+  <Pagination>
+    <PaginationContent className="flex items-center justify-center gap-2">
 
-    {/* Page Numbers */}
-    {(() => {
-      const current = pagination.pageIndex;
-      const total = totalPageCount;
-      const pages: (number | string)[] = [];
+      <PaginationItem>
+        {table.getCanPreviousPage() ? (
+          <PaginationPrevious
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              table.previousPage();
+            }}
+            className="px-3 py-1 rounded-md border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 text-sm transition-colors"
+          />
+        ) : (
+          <span className="px-3 py-1 rounded-md border border-gray-200 bg-gray-100 text-gray-400 text-sm cursor-not-allowed">
+            Previous
+          </span>
+        )}
+      </PaginationItem>
 
-      if (total <= 7) {
-        for (let i = 0; i < total; i++) pages.push(i);
-      } else {
-        pages.push(0);
-        if (current > 2) pages.push("...");
-        for (
-          let i = Math.max(1, current - 1);
-          i <= Math.min(total - 2, current + 1);
-          i++
-        ) {
-          pages.push(i);
-        }
-        if (current < total - 3) pages.push("...");
-        pages.push(total - 1);
-      }
+      {/* Page Numbers */}
+      {(() => {
+        const current = pagination.pageIndex;
+        const total = totalPageCount;
+        const pages: (number | string)[] = [];
 
-      return pages.map((p, idx) => (
-        <PaginationItem key={idx}>
-          {p === "..." ? (
-            <PaginationEllipsis className="px-2 text-gray-500" />
-          ) : (
-            <PaginationLink
-              href="#"
-              isActive={p === current}
-              onClick={(e) => {
-                e.preventDefault();
-                table.setPageIndex(p as number);
-              }}
-              className={`px-3 py-1 rounded-md border text-sm transition-colors ${
-                p === current
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-              }`}
-            >
-              {(p as number) + 1}
-            </PaginationLink>
-          )}
-        </PaginationItem>
-      ));
-    })()}
+        if (total <= 7) {
+          for (let i = 0; i < total; i++) pages.push(i);
+        } else {
+          pages.push(0);
+          if (current > 2) pages.push("...");
+          for (
+            let i = Math.max(1, current - 1);
+            i <= Math.min(total - 2, current + 1);
+            i++
+          ) {
+            pages.push(i);
+          }
+          if (current < total - 3) pages.push("...");
+          pages.push(total - 1);
+        }
 
-    {/* Next Button */}
-    <PaginationItem>
-      {table.getCanNextPage() ? (
-        <PaginationNext
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            table.nextPage();
-          }}
-          className="px-3 py-1 rounded-md border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 text-sm transition-colors"
-        />
-      ) : (
-        <span className="px-3 py-1 rounded-md border border-gray-200 bg-gray-100 text-gray-400 text-sm cursor-not-allowed">
-          Next
-        </span>
-      )}
-    </PaginationItem>
-  </PaginationContent>
-</Pagination>
+        return pages.map((p, idx) => (
+          <PaginationItem key={idx}>
+            {p === "..." ? (
+              <PaginationEllipsis className="px-2 text-gray-500" />
+            ) : (
+              <PaginationLink
+                href="#"
+                isActive={p === current}
+                onClick={(e) => {
+                  e.preventDefault();
+                  table.setPageIndex(p as number);
+                }}
+                className={`px-3 py-1 rounded-md border text-sm transition-colors ${
+                  p === current
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                {(p as number) + 1}
+              </PaginationLink>
+            )}
+          </PaginationItem>
+        ));
+      })()}
 
+      {/* Next Button */}
+      <PaginationItem>
+        {table.getCanNextPage() ? (
+          <PaginationNext
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              table.nextPage();
+            }}
+            className="px-3 py-1 rounded-md border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 text-sm transition-colors"
+          />
+        ) : (
+          <span className="px-3 py-1 rounded-md border border-gray-200 bg-gray-100 text-gray-400 text-sm cursor-not-allowed">
+            Next
+          </span>
+        )}
+      </PaginationItem>
+    </PaginationContent>
+  </Pagination>
         </div>
       </div>
     </div>
-
     </>
   );
 }
